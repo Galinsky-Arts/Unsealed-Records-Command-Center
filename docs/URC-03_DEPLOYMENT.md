@@ -43,3 +43,11 @@ After actual deployment, record the origin, commit/image digest, exact check evi
 ## Render deployment (2026-11-15)
 
 The Command Center runs as a Render free-plan Node web service: build `npm ci && npm run build`, start `npm start` (`node scripts/start-production.mjs`), health check `/healthz`. Runtime variables: `ENGINE_URL`, `ENGINE_API_KEY`, `SESSION_SECRET`, `ADMIN_PASSWORD`, `ADMIN_USERNAME`, `APP_ORIGIN`, `TRUST_PROXY=1`, `NODE_VERSION=22`; optional OIDC variables as described in `URC-02_BFF_BOUNDARY.md`. Secrets are generated and stored only in Render environment variables. The `Dockerfile` builds the same artifact for container hosts. Anonymous requests receive the login screen and `401` for every `/api/*` route; the production smoke script in this document targets the older label-report route shape and is not used for this entry point.
+
+### Deployment record (2026-11-15)
+
+- Render web service `srv-dbsvlbdg1s2s738biqng` (`unsealed-records-command-center`, free plan, Virginia, auto-deploy from `main`, health check `/healthz`): https://unsealed-records-command-center.onrender.com
+- Engine: `https://music-operations-engine-s1yz.onrender.com` with a dedicated read-only Engine credential. Startup logs record `Engine probe: health=200 authorized-read=200` (status codes only).
+- Runtime variables (values only in Render): `ENGINE_URL`, `ENGINE_API_KEY` (read-only), `ADMIN_USERNAME`, `ADMIN_PASSWORD` (generated), `SESSION_SECRET` (generated), `APP_ORIGIN`, `TRUST_PROXY`, `NODE_VERSION`.
+- OIDC is not configured: it needs an owner-provisioned issuer (`BFF_ISSUER`, `BFF_AUDIENCE`, `BFF_JWKS_JSON`, `OIDC_AUTHORIZATION_ENDPOINT`, `OIDC_TOKEN_ENDPOINT`, `OIDC_CLIENT_ID`, `OIDC_REDIRECT_URI`). Until then the single local administrator login is the only sign-in.
+- Not yet verified: interactive browser login on the live URL from an external network, accessibility/mobile acceptance, and live producer data. Independent human security review remains pending.

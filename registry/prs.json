@@ -8,13 +8,15 @@
   ],
   "schemaVersion": 1,
   "roadmapVersion": 1,
-  "observedAt": "2026-10-19T00:11:47Z",
+  "observedAt": "2026-11-15T18:51:02Z",
   "units": [
     {
       "id": "URC-01",
       "title": "Responsive premium dashboard foundation",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        1
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -34,16 +36,23 @@
       "id": "URC-03",
       "title": "Production deployment and routing",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        22
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        23
+      ]
     },
     {
       "id": "URC-04",
       "title": "Label catalog identity",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        8
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -52,7 +61,9 @@
       "id": "URC-05",
       "title": "Streaming insights",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        9
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -61,7 +72,9 @@
       "id": "URC-06",
       "title": "Storefront sales dashboards",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        10
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -70,7 +83,9 @@
       "id": "URC-07",
       "title": "TooLost statement drill-down",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        11
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -79,7 +94,9 @@
       "id": "URC-08",
       "title": "Stems White Label commerce",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        12
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -88,7 +105,9 @@
       "id": "URC-09",
       "title": "TrackZero speaker contributions",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        13
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -97,7 +116,9 @@
       "id": "URC-10",
       "title": "SceneSignal event/session insights",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        14
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -106,7 +127,9 @@
       "id": "URC-11",
       "title": "Event calendar/QR street launches",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        15
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -115,7 +138,9 @@
       "id": "URC-12",
       "title": "Artist portfolio and royalties",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        16
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -124,25 +149,37 @@
       "id": "URC-13",
       "title": "Goals, anomaly alerts and source health",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        17
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        24
+      ]
     },
     {
       "id": "URC-14",
       "title": "Drill-downs, exports and audit",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        18
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        24
+      ]
     },
     {
       "id": "URC-15",
       "title": "Roles, mobile quality and production acceptance",
       "origin": "original",
-      "prs": [],
+      "prs": [
+        19
+      ],
       "dependsOn": [],
       "externalDependencies": [],
       "externalPrerequisites": []
@@ -151,10 +188,15 @@
       "id": "URC-16",
       "title": "Added label/family/all-label scopes and platform views (approved additional scope)",
       "origin": "addition",
-      "prs": [],
+      "prs": [
+        20
+      ],
       "dependsOn": [],
       "externalDependencies": [],
-      "externalPrerequisites": []
+      "externalPrerequisites": [],
+      "contributingPrs": [
+        1
+      ]
     }
   ],
   "pullRequests": [
@@ -163,30 +205,270 @@
       "number": 1,
       "title": "Build the Command Center with label/family and TrackZero/SceneSignal views",
       "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/1",
-      "state": "open",
+      "state": "closed",
       "draft": false,
-      "createdAt": "2026-10-09T21:16:59.000Z",
-      "updatedAt": "2026-10-09T22:08:00.000Z",
-      "closedAt": null,
-      "mergedAt": null,
-      "headSha": "4b7331e09f29185a35cbe34d4b88728470b070a2",
+      "createdAt": "2026-10-09T21:16:59Z",
+      "updatedAt": "2026-11-15T18:26:50Z",
+      "closedAt": "2026-11-15T18:26:50Z",
+      "mergedAt": "2026-11-15T18:26:50Z",
+      "headSha": "94ef9369f6c085dd39a377779579dd52a5e16a91",
       "baseRef": "main",
-      "mergeCommitSha": null
+      "mergeCommitSha": "0d71d9febee00e35bc907d0fa2fc365a4cbc1d3d"
     },
     {
       "id": 4913258825,
       "number": 7,
-      "title": "URC-02: Production backend-for-frontend and identity",
+      "title": "URC-02: Production backend-for-frontend and identity (adapted: local admin fallback, optional OIDC)",
       "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/7",
-      "state": "open",
-      "draft": true,
-      "createdAt": "2026-10-18T22:08:45.000Z",
-      "updatedAt": "2026-10-19T00:10:57.000Z",
-      "closedAt": null,
-      "mergedAt": null,
-      "headSha": "d3f185d53bee9b53a8f400ed9354fbf71258efd2",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:08:45Z",
+      "updatedAt": "2026-11-15T18:31:53Z",
+      "closedAt": "2026-11-15T18:31:52Z",
+      "mergedAt": "2026-11-15T18:31:52Z",
+      "headSha": "88cb60fae89fcb528cac902f6f40c6a084da5f9b",
       "baseRef": "main",
-      "mergeCommitSha": "6a41d4b7abbe1a290900f5d99619e21df92c9b29"
+      "mergeCommitSha": "58b698de8eea37c48ca14cd1a24b18f1ab72aeb0"
+    },
+    {
+      "id": 4913262056,
+      "number": 8,
+      "title": "URC-04: Label catalog identity",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/8",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:09:15Z",
+      "updatedAt": "2026-11-15T18:44:22Z",
+      "closedAt": "2026-11-15T18:44:22Z",
+      "mergedAt": "2026-11-15T18:44:22Z",
+      "headSha": "9091dce885364d89a64b4be4e0503859ab72dbf3",
+      "baseRef": "main",
+      "mergeCommitSha": "f1dca5a9e78e53b5154515f53c2ee4effc62b706"
+    },
+    {
+      "id": 4913265273,
+      "number": 9,
+      "title": "URC-05: Streaming insights",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/9",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:09:45Z",
+      "updatedAt": "2026-11-15T18:44:30Z",
+      "closedAt": "2026-11-15T18:44:30Z",
+      "mergedAt": "2026-11-15T18:44:30Z",
+      "headSha": "9fa21785714d246e261b784cc1ffb61187725b0d",
+      "baseRef": "main",
+      "mergeCommitSha": "77d6a2ad74e36874d075df185da2e0760aad90b3"
+    },
+    {
+      "id": 4913268699,
+      "number": 10,
+      "title": "URC-06: Storefront sales dashboards",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/10",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:10:16Z",
+      "updatedAt": "2026-11-15T18:44:38Z",
+      "closedAt": "2026-11-15T18:44:38Z",
+      "mergedAt": "2026-11-15T18:44:38Z",
+      "headSha": "bef810d5b02cb30322d8cc0466b46f2b668398a3",
+      "baseRef": "main",
+      "mergeCommitSha": "4de0db6e2c3fc999b9de14bfc927726acb5e6f3b"
+    },
+    {
+      "id": 4913272286,
+      "number": 11,
+      "title": "URC-07: TooLost statement drill-down",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/11",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:10:51Z",
+      "updatedAt": "2026-11-15T18:44:46Z",
+      "closedAt": "2026-11-15T18:44:46Z",
+      "mergedAt": "2026-11-15T18:44:46Z",
+      "headSha": "72790eb63d4cc1a1510d57c541f88064cd51bc22",
+      "baseRef": "main",
+      "mergeCommitSha": "c2263d1cb3ba48aad7b45e51d512d7f7cf236fc6"
+    },
+    {
+      "id": 4913275612,
+      "number": 12,
+      "title": "URC-08: Stems White Label commerce",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/12",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:11:23Z",
+      "updatedAt": "2026-11-15T18:44:54Z",
+      "closedAt": "2026-11-15T18:44:54Z",
+      "mergedAt": "2026-11-15T18:44:54Z",
+      "headSha": "72cb5d331376a859dd70160c123ccad490f3426e",
+      "baseRef": "main",
+      "mergeCommitSha": "c7cfbbb131f8add4f4f87a2814ef4f4e2fde37c3"
+    },
+    {
+      "id": 4913279152,
+      "number": 13,
+      "title": "URC-09: TrackZero speaker contributions",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/13",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:11:57Z",
+      "updatedAt": "2026-11-15T18:45:02Z",
+      "closedAt": "2026-11-15T18:45:02Z",
+      "mergedAt": "2026-11-15T18:45:02Z",
+      "headSha": "ee2ff61845c1e88842a7b48107920aaea44ab399",
+      "baseRef": "main",
+      "mergeCommitSha": "91a4edc4233b1a4734e086dd7bcf7b95b70d1408"
+    },
+    {
+      "id": 4913282161,
+      "number": 14,
+      "title": "URC-10: SceneSignal event/session insights",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/14",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:12:26Z",
+      "updatedAt": "2026-11-15T18:45:10Z",
+      "closedAt": "2026-11-15T18:45:10Z",
+      "mergedAt": "2026-11-15T18:45:09Z",
+      "headSha": "5aef2d0881f09192636173e0215f72dda2bc74a6",
+      "baseRef": "main",
+      "mergeCommitSha": "1bcb58ae000f3e01197a6cb6371531891b3c6b41"
+    },
+    {
+      "id": 4913286118,
+      "number": 15,
+      "title": "URC-11: Event calendar/QR street launches",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/15",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:13:00Z",
+      "updatedAt": "2026-11-15T18:45:17Z",
+      "closedAt": "2026-11-15T18:45:17Z",
+      "mergedAt": "2026-11-15T18:45:17Z",
+      "headSha": "fde755427785eceb1a60ef6fb1378abcf2a2390a",
+      "baseRef": "main",
+      "mergeCommitSha": "429dd61b209f5894ef55b8f0cd56703344b515f9"
+    },
+    {
+      "id": 4913289378,
+      "number": 16,
+      "title": "URC-12: Artist portfolio and royalties",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/16",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:13:30Z",
+      "updatedAt": "2026-11-15T18:45:25Z",
+      "closedAt": "2026-11-15T18:45:25Z",
+      "mergedAt": "2026-11-15T18:45:25Z",
+      "headSha": "c54fe10597b3553a69fd937f83cc85ad9417addd",
+      "baseRef": "main",
+      "mergeCommitSha": "06aa647835d3b38c93673c5cb1263ea2687f7ba4"
+    },
+    {
+      "id": 4913292951,
+      "number": 17,
+      "title": "URC-13: Goals, anomaly alerts and source health",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/17",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:14:03Z",
+      "updatedAt": "2026-11-15T18:45:32Z",
+      "closedAt": "2026-11-15T18:45:32Z",
+      "mergedAt": "2026-11-15T18:45:32Z",
+      "headSha": "68da071ab9cce4df3edcc9673bc0a5fd44e04967",
+      "baseRef": "main",
+      "mergeCommitSha": "b7029eee5d7404ca187b53bfa916e414015bb29a"
+    },
+    {
+      "id": 4913297169,
+      "number": 18,
+      "title": "URC-14: Drill-downs, exports and audit",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/18",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:14:42Z",
+      "updatedAt": "2026-11-15T18:45:41Z",
+      "closedAt": "2026-11-15T18:45:41Z",
+      "mergedAt": "2026-11-15T18:45:40Z",
+      "headSha": "9383ef0990a962f2aa1c8be606220ecec46e72f5",
+      "baseRef": "main",
+      "mergeCommitSha": "5e6e7d9aaaa9466f929f73a480bddc5613017447"
+    },
+    {
+      "id": 4913300793,
+      "number": 19,
+      "title": "URC-15: Roles, mobile quality and production acceptance",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/19",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:15:17Z",
+      "updatedAt": "2026-11-15T18:45:49Z",
+      "closedAt": "2026-11-15T18:45:48Z",
+      "mergedAt": "2026-11-15T18:45:48Z",
+      "headSha": "d2759fb25ab94eeebb06c16aa22c852d7feca41a",
+      "baseRef": "main",
+      "mergeCommitSha": "9d55ef18a651899ea03d253e417d4e762f39fe68"
+    },
+    {
+      "id": 4913304956,
+      "number": 20,
+      "title": "URC-16: Added label/family/all-label scopes and platform views (approved additional scope)",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/20",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-10-18T22:15:56Z",
+      "updatedAt": "2026-11-15T18:45:56Z",
+      "closedAt": "2026-11-15T18:45:56Z",
+      "mergedAt": "2026-11-15T18:45:56Z",
+      "headSha": "7dadccef7d75d70b85e5c1950fa3f7e446ee9682",
+      "baseRef": "main",
+      "mergeCommitSha": "4c958880414d427d6ae6fe461ed189570595e53b"
+    },
+    {
+      "id": 5110134883,
+      "number": 22,
+      "title": "URC-03: Production deployment and routing",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/22",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-11-01T18:12:06Z",
+      "updatedAt": "2026-11-15T18:27:11Z",
+      "closedAt": "2026-11-15T18:27:11Z",
+      "mergedAt": "2026-11-15T18:27:11Z",
+      "headSha": "a20ecd35fb4054291ae07012f6cc507a0101c8a9",
+      "baseRef": "main",
+      "mergeCommitSha": "b1bf4f828c5d0b2e504f1f735d16477b1106687c"
+    },
+    {
+      "id": 5325854526,
+      "number": 23,
+      "title": "Log engine connectivity status at startup",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/23",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-11-15T18:36:26Z",
+      "updatedAt": "2026-11-15T18:38:21Z",
+      "closedAt": "2026-11-15T18:38:21Z",
+      "mergedAt": "2026-11-15T18:38:21Z",
+      "headSha": "c464b445197921c92f94b3a6e015bfa79eaca275",
+      "baseRef": "main",
+      "mergeCommitSha": "aa20f7b56e11251d13f5d1afed30f3de1ce29420"
+    },
+    {
+      "id": 5325955313,
+      "number": 24,
+      "title": "Engine alerts, rollups and CSV exports in the Command Center",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/24",
+      "state": "closed",
+      "draft": false,
+      "createdAt": "2026-11-15T18:47:59Z",
+      "updatedAt": "2026-11-15T18:50:53Z",
+      "closedAt": "2026-11-15T18:50:53Z",
+      "mergedAt": "2026-11-15T18:50:53Z",
+      "headSha": "57d6a96c2d83578f5e57892710d13f80f26a0169",
+      "baseRef": "main",
+      "mergeCommitSha": "e2bcc752c3db026b691506bae744e2649f1d7aab"
     }
   ]
 }
