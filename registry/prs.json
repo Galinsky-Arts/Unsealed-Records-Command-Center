@@ -1,5 +1,5 @@
 {
-  "repository": "neophilism/Unsealed-Records-Command-Center",
+  "repository": "Galinsky-Arts/Unsealed-Records-Command-Center",
   "title": "Unsealed-Records-Command-Center",
   "planVerified": true,
   "plannedPrCount": 16,
@@ -160,7 +160,7 @@
       "id": 4805957290,
       "number": 1,
       "title": "Build the Command Center with label/family and TrackZero/SceneSignal views",
-      "url": "https://github.com/neophilism/Unsealed-Records-Command-Center/pull/1",
+      "url": "https://github.com/Galinsky-Arts/Unsealed-Records-Command-Center/pull/1",
       "state": "open",
       "draft": false,
       "createdAt": "2026-10-09T21:16:59.000Z",
