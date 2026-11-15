@@ -182,3 +182,21 @@ test('reporting routes, alert thresholds and CSV exports pass through the authen
   if(String(url).endsWith('.csv?labelId=alpha')){assert.equal(options.headers.accept,'text/csv');return new Response('a,b\r\n1,2\r\n',{headers:{'content-type':'text/csv; charset=utf-8'}});}
   return new Response(JSON.stringify({alerts:[]}),{headers:{'content-type':'application/json'}});}});
 });
+
+test('label report routes proxy only known reports for authorized labels and verify the answering label',async()=>{
+ const seen=[];
+ await withApp(async({base})=>{
+  const cookie=sessionCookie(await login(base,{username:'admin',password:PASSWORD}));
+  const ok=await fetch(base+'/api/labels/label_alpha/reports/streams',{headers:{cookie}});
+  assert.equal(ok.status,200);assert.equal(ok.headers.get('x-data-provenance'),'live');
+  assert.equal(seen.at(-1),'https://engine.example/v1/labels/label_alpha/reports/streams');
+  const waiting=await fetch(base+'/api/labels/label_alpha/reports/stems',{headers:{cookie}});
+  assert.equal(waiting.headers.get('x-data-provenance'),'awaiting-producer');
+  assert.equal((await fetch(base+'/api/labels/label_alpha/reports/streams')).status,401);
+  for(const path of ['/api/labels/label_alpha/reports/ingest','/api/labels/label_alpha/reports/streams?x=1','/api/labels/short/reports/streams','/api/labels/label_alpha/reports/../ingest'])
+   assert.equal((await fetch(base+path,{headers:{cookie}})).status,404,path);
+  assert.equal((await fetch(base+'/api/labels/label_wrong1/reports/streams',{headers:{cookie}})).status,502,'mismatched engine label is withheld');
+ },{fetchImpl:async url=>{seen.push(String(url));const [, ,label,,name]=new URL(url).pathname.split('/').slice(1);
+  const labelId=label==='label_wrong1'?'label_other':label;
+  return new Response(JSON.stringify({labelId,report:name,status:name==='stems'?'awaiting-producer':'live'}),{headers:{'content-type':'application/json'}});}});
+});

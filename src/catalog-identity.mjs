@@ -8,11 +8,12 @@ export function projectLabelCatalog(payload,{requestedLabelId,expectedSource,art
  if(!validId(requestedLabelId)||!text(expectedSource,100)||
     !Number.isSafeInteger(nowMs)||nowMs<0||!payload||typeof payload!=='object'||Array.isArray(payload)||
     payload.labelId!==requestedLabelId||!validId(payload.releaseId)||!text(payload.title)||
-    typeof payload.releaseDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(payload.releaseDate)||
+    // releaseDate, works and track ISRCs may be null/empty when the source does not report them.
+    (payload.releaseDate!==null&&(typeof payload.releaseDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(payload.releaseDate)||
     Number.isNaN(Date.parse(payload.releaseDate+'T00:00:00Z'))||
-    new Date(payload.releaseDate+'T00:00:00Z').toISOString().slice(0,10)!==payload.releaseDate||
-    !Array.isArray(payload.works)||payload.works.length<1||payload.works.length>500||
-    !Array.isArray(payload.tracks)||payload.tracks.length<1||payload.tracks.length>500||
+    new Date(payload.releaseDate+'T00:00:00Z').toISOString().slice(0,10)!==payload.releaseDate))||
+    !Array.isArray(payload.works)||payload.works.length>500||
+    !Array.isArray(payload.tracks)||payload.tracks.length>500||(payload.releaseDate!==null&&(payload.works.length<1||payload.tracks.length<1))||
     !payload.source||payload.source.system!==expectedSource||!['live','cached','synthetic'].includes(payload.source.status)||!Number.isSafeInteger(payload.source.revision)||
     payload.source.revision<0||!Number.isSafeInteger(payload.source.observedAtMs)||
     payload.source.observedAtMs>nowMs+30000||payload.source.observedAtMs<0) return fail();
@@ -24,8 +25,8 @@ export function projectLabelCatalog(payload,{requestedLabelId,expectedSource,art
  const seen=new Set();
  const tracks=payload.tracks.map(track=>{
   if(!track||(track.labelId!==undefined&&track.labelId!==requestedLabelId)||!validId(track.trackId)||seen.has(track.trackId)||!text(track.title)||
-     typeof track.isrc!=='string'||!isrc.test(track.isrc)||!Array.isArray(track.workIds)||
-     track.workIds.length<1||track.workIds.length>50||new Set(track.workIds).size!==track.workIds.length||
+     (track.isrc!==null&&(typeof track.isrc!=='string'||!isrc.test(track.isrc)))||!Array.isArray(track.workIds)||
+     (track.workIds.length<1&&payload.works.length>0)||track.workIds.length>50||new Set(track.workIds).size!==track.workIds.length||
      track.workIds.some(workId=>!workIds.has(workId))) return fail();
   seen.add(track.trackId);
   return Object.freeze({trackId:track.trackId,title:track.title.trim(),isrc:track.isrc,workIds:Object.freeze([...track.workIds])});

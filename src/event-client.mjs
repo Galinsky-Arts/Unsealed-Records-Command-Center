@@ -1,4 +1,4 @@
-import {listCalendarEvents} from './event-calendar.mjs';
+import {listCalendarEvents} from './event-calendar-core.mjs';
 
 /** Same-origin public-calendar reader; BFF must verify owning label. */
 export function createEventClient({allowedHosts,fetchImpl=fetch,now=()=>Date.now()}){

@@ -25,7 +25,7 @@ export function projectTooLostDetail(row,{requestedLabelId,nowMs=Date.now()}={})
     typeof line.royaltyMinor!=='string'||!integer.test(line.royaltyMinor)||line.royaltyMinor.length>100||
     (line.kind==='royalty'&&BigInt(line.royaltyMinor)<0n)||
     (line.kind==='reversal'&&BigInt(line.royaltyMinor)>0n)||
-    typeof line.units!=='string'||!unsigned.test(line.units)||line.units.length>100) return fail();
+    (line.units!==null&&(typeof line.units!=='string'||!unsigned.test(line.units)||line.units.length>100))) return fail();
   seen.add(line.lineId);
   return Object.freeze({lineId:line.lineId,releaseId:line.releaseId,trackId:line.trackId,
     kind:line.kind,units:line.units,royaltyMinor:BigInt(line.royaltyMinor).toString()});

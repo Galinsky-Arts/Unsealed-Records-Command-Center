@@ -19,6 +19,7 @@ const ENGINE_ROUTES=[
 ];
 const QUERY_KEYS=new Set(['labelId','labelIds','familyId','source','from','to','limit','cursor','eventId','sessionId','kind','staleHours','backlogMinutes','minBaseline']);
 const CSV_LIMIT=100*1024*1024;
+const LABEL_REPORT_NAMES=new Set(['catalog','streams','sales','toolost','scenesignal','health','events','stems','artist','trackzero']);
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
  '.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.json':'application/json','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
 const CSP="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
@@ -131,6 +132,21 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
   }catch{if(res.headersSent) return res.destroy();return send(res,502,failure,{'x-data-provenance':'unavailable'});}
  }
 
+ async function reportProxy(res,url,session,labelId,name){
+  if(url.search||!LABEL_REPORT_NAMES.has(name)) return send(res,404,failure);
+  if(session.labels!=='*'&&!session.labels.includes(labelId)) return send(res,403,failure);
+  try{
+   const signal=AbortSignal.timeout(15000);
+   const response=await fetchImpl(new URL('/v1/labels/'+labelId+'/reports/'+name,config.engineOrigin),
+    {method:'GET',redirect:'error',signal,headers:{authorization:'Bearer '+config.engineToken,accept:'application/json'}});
+   if(!response.ok){await response.body?.cancel();return send(res,response.status===404?404:502,failure,{'x-data-provenance':'unavailable'});}
+   const data=await readJson(response,{maxBytes:5_000_000,signal});
+   // The engine must answer for exactly the requested label and report; anything else is withheld.
+   if(!data||typeof data!=='object'||Array.isArray(data)||data.labelId!==labelId||data.report!==name) return send(res,502,failure,{'x-data-provenance':'unavailable'});
+   return send(res,200,data,{'x-data-provenance':data.status==='awaiting-producer'?'awaiting-producer':data.status==='not-applicable'?'not-applicable':'live'});
+  }catch{return send(res,502,failure,{'x-data-provenance':'unavailable'});}
+ }
+
  async function serveStatic(req,res,url){
   let path;
   try{path=decodeURIComponent(url.pathname);}catch{return send(res,400,failure);}
@@ -216,6 +232,8 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
     const session=currentSession(req);
     if(!session) return send(res,401,failure);
     if(url.pathname.startsWith('/api/v1/')) return await proxy(req,res,url,session);
+    const labelReport=/^\/api\/labels\/([A-Za-z0-9_-]{8,128})\/reports\/([a-z]{1,32})$/.exec(url.pathname);
+    if(labelReport) return await reportProxy(res,url,session,labelReport[1],labelReport[2]);
     return send(res,404,failure);
    }
    return await serveStatic(req,res,url);
