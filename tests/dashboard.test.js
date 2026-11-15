@@ -96,3 +96,28 @@ test('Sources tab shows engine-evaluated alerts and scoped CSV export links',asy
   const links=[...document.querySelectorAll('.export-links a')].map(a=>a.getAttribute('href'));
   assert.deepEqual(links,['/api/v1/exports/facts.csv','/api/v1/exports/daily.csv']);
 });
+
+test('Label reports tab renders engine reports with live, awaiting and not-applicable labels',async t=>{
+  const fixture=JSON.parse(await readFile('tests/fixtures/engine-label-reports.json','utf8'));
+  const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});t.after(()=>dom.window.close());
+  const window=dom.window,document=window.document;
+  const ok=data=>({ok:true,status:200,json:async()=>data});
+  window.fetch=async path=>{
+    if(path==='/api/session')return ok({authenticated:true,labels:'all'});
+    if(path.startsWith('/api/v1/scopes'))return ok({labels:[{id:'label_alpha',name:'Alpha'}],families:[]});
+    if(path.startsWith('/api/labels/label_alpha/reports/'))return ok(fixture[path.split('/').pop()]);
+    const labelId=new URL(path,'http://localhost').searchParams.get('labelId');
+    return ok({synthetic:false,counts:{sales:0,streams:0,plays:0,events:0,attendees:0},scope:{labelIds:[labelId||'label_alpha']},byRelease:{},bySource:{},daily:[]});
+  };
+  const files=await readdir('dist/assets');const bundle=await readFile('dist/assets/'+files.find(f=>f.endsWith('.js')),'utf8');window.eval(bundle);
+  await until(()=>document.querySelector('#label-scope')?.options.length===2);
+  [...document.querySelectorAll('.sidebar nav button')].find(b=>b.textContent==='Label reports').click();
+  await until(()=>document.body.textContent.includes('Choose a single label'));
+  const select=document.querySelector('#label-scope');select.value='label:label_alpha';select.dispatchEvent(new window.Event('change',{bubbles:true}));
+  await until(()=>document.querySelector('[data-report="streams"] .report-state.live'));
+  const state=name=>document.querySelector(`[data-report="${name}"] .report-state`).textContent;
+  assert.equal(state('catalog'),'Live engine data');assert.equal(state('stems'),'Awaiting producer');assert.equal(state('trackzero'),'Not applicable');
+  assert.match(document.querySelector('[data-report="streams"]').textContent,/42 streams/);
+  assert.match(document.querySelector('[data-report="sales"]').textContent,/not tied to a reported sale/);
+  assert.match(document.querySelector('[data-report="catalog"]').textContent,/USABC1234567/);
+});

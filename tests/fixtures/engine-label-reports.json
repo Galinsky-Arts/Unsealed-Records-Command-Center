@@ -1,0 +1,261 @@
+{
+ "catalog": {
+  "labelId": "label_alpha",
+  "report": "catalog",
+  "generatedAt": "2026-11-15T19:00:41.459Z",
+  "status": "live",
+  "releases": [
+   {
+    "labelId": "label_alpha",
+    "releaseId": "release_one",
+    "catalogId": "release_one",
+    "title": "Release One",
+    "releaseDate": null,
+    "upc": "123456789012",
+    "works": [],
+    "tracks": [
+     {
+      "trackId": "track_one",
+      "catalogId": "track_one",
+      "title": "Track One",
+      "isrc": "USABC1234567",
+      "workIds": []
+     }
+    ],
+    "artworkUrl": null,
+    "source": {
+     "system": "music-operations-engine",
+     "kind": "live",
+     "revision": 5,
+     "observedAtMs": 1794769241328,
+     "status": "live"
+    }
+   }
+  ],
+  "notReported": [
+   "releaseDate",
+   "works",
+   "artworkUrl"
+  ]
+ },
+ "streams": {
+  "labelId": "label_alpha",
+  "report": "streams",
+  "generatedAt": "2026-11-15T19:00:41.465Z",
+  "status": "live",
+  "records": [
+   {
+    "labelId": "label_alpha",
+    "period": "2026-10",
+    "country": "US",
+    "platform": "dsp",
+    "streams": "40",
+    "source": {
+     "system": "music-operations-engine",
+     "kind": "live",
+     "revision": 1794769241333,
+     "observedAtMs": 1794769241333
+    }
+   },
+   {
+    "labelId": "label_alpha",
+    "period": "2026-10",
+    "country": "ALL",
+    "platform": "dsp",
+    "streams": "42",
+    "source": {
+     "system": "music-operations-engine",
+     "kind": "live",
+     "revision": 1794769241333,
+     "observedAtMs": 1794769241333
+    }
+   }
+  ],
+  "truncated": false
+ },
+ "sales": {
+  "labelId": "label_alpha",
+  "report": "sales",
+  "generatedAt": "2026-11-15T19:00:41.471Z",
+  "status": "live",
+  "events": [
+   {
+    "labelId": "label_alpha",
+    "eventId": "30a80348fbada1bc489ea1d4be2d502a06eb028a90643d2c429f73ee4be8a9f2",
+    "orderId": "order_0001",
+    "storefront": "bandcamp",
+    "country": "GB",
+    "currency": "USD",
+    "period": "2026-10",
+    "kind": "sale",
+    "settlement": "pending",
+    "amountMinor": "1000",
+    "source": {
+     "system": "music-operations-engine",
+     "kind": "live",
+     "revision": 1794769241333,
+     "observedAtMs": 1794769241333
+    }
+   },
+   {
+    "labelId": "label_alpha",
+    "eventId": "f56c9aa5f1b245b8401fd53bb1a4cdc7501aa4dbd233dd64c568f3b20d8be4b6",
+    "orderId": "order_0001",
+    "storefront": "bandcamp",
+    "country": "GB",
+    "currency": "USD",
+    "period": "2026-10",
+    "kind": "refund",
+    "settlement": "pending",
+    "amountMinor": "400",
+    "source": {
+     "system": "music-operations-engine",
+     "kind": "live",
+     "revision": 1794769241333,
+     "observedAtMs": 1794769241333
+    }
+   }
+  ],
+  "truncated": false,
+  "unattributedRefunds": [
+   {
+    "currency": "USD",
+    "amountMinor": "250"
+   }
+  ],
+  "notes": "Unknown territory is reported as ZZ, unknown storefront as unspecified; settlement is pending unless the source marked it settled."
+ },
+ "toolost": {
+  "labelId": "label_alpha",
+  "report": "toolost",
+  "generatedAt": "2026-11-15T19:00:41.477Z",
+  "status": "live",
+  "statements": [
+   {
+    "provider": "TooLost",
+    "labelId": "label_alpha",
+    "statementId": "id_7aee5b5dbb9e781589946f9087eb09e4a880d57e",
+    "providerStatementId": "october",
+    "period": "2026-10",
+    "currency": "USD",
+    "royaltiesMinor": "115",
+    "lines": [
+     {
+      "lineId": "30aebf4670b681d0646c68caf84c1641bf3b7e50555d7acb1827843105fbeb21",
+      "releaseId": "release_one",
+      "trackId": "track_one",
+      "kind": "royalty",
+      "units": null,
+      "royaltyMinor": "115"
+     }
+    ],
+    "source": {
+     "system": "TooLost",
+     "kind": "live",
+     "revision": 1794769241348,
+     "observedAtMs": 1794769241348,
+     "documentSha256": "0b1be58a770020e14a48c56579df8666dc815a929cb511304b03d3c74c782451",
+     "documentHashBasis": "normalized-rows"
+    }
+   }
+  ],
+  "notReported": [
+   "units"
+  ]
+ },
+ "stems": {
+  "labelId": "label_alpha",
+  "report": "stems",
+  "generatedAt": "2026-11-15T19:00:41.481Z",
+  "status": "awaiting-producer",
+  "receipts": [],
+  "reason": "No Stems White Label integration has delivered receipts (MOE-010)."
+ },
+ "trackzero": {
+  "labelId": "label_alpha",
+  "report": "trackzero",
+  "generatedAt": "2026-11-15T19:00:41.485Z",
+  "status": "not-applicable",
+  "creatorId": null,
+  "events": [],
+  "reason": "Creator contribution views require a creator-scoped identity; label sessions use the aggregate TrackZero summary."
+ },
+ "scenesignal": {
+  "labelId": "label_alpha",
+  "report": "scenesignal",
+  "generatedAt": "2026-11-15T19:00:41.492Z",
+  "status": "live",
+  "sessions": [
+   {
+    "labelId": "label_alpha",
+    "sessionId": "id_176473d7313395b6e209bc6b1d57aa160b628706",
+    "eventId": null,
+    "startedAt": "2026-10-07T20:00:00.000Z",
+    "status": null,
+    "attendance": "12",
+    "engagements": "1",
+    "commerceTransactions": "0",
+    "commerceMinor": "0",
+    "currency": "XXX",
+    "source": {
+     "system": "SceneSignal",
+     "kind": "live",
+     "revision": 1794769241333,
+     "observedAtMs": 1794769241333
+    }
+   }
+  ],
+  "notReported": [
+   "eventId",
+   "status"
+  ],
+  "notes": "engagements counts music plays; commerceMinor is null when a session mixes currencies."
+ },
+ "events": {
+  "labelId": "label_alpha",
+  "report": "events",
+  "generatedAt": "2026-11-15T19:00:41.502Z",
+  "status": "awaiting-producer",
+  "events": [],
+  "reason": "No publish-approved public calendar source is connected."
+ },
+ "artist": {
+  "labelId": "label_alpha",
+  "report": "artist",
+  "generatedAt": "2026-11-15T19:00:41.505Z",
+  "status": "awaiting-producer",
+  "artistId": null,
+  "statements": [],
+  "reason": "Royalty split allocations are not implemented (MOE-013)."
+ },
+ "health": {
+  "labelId": "label_alpha",
+  "report": "health",
+  "generatedAt": "2026-11-15T19:00:41.510Z",
+  "status": "live",
+  "observations": [
+   {
+    "labelId": "label_alpha",
+    "sourceId": "dsp",
+    "metricId": "records",
+    "accessVerified": true,
+    "kind": "live",
+    "valueDecimal": "5",
+    "revision": 1794769241333,
+    "observedAtMs": 1794769241333,
+    "maxAgeMs": 172800000
+   },
+   {
+    "labelId": "label_alpha",
+    "sourceId": "scenesignal",
+    "metricId": "records",
+    "accessVerified": true,
+    "kind": "live",
+    "valueDecimal": "2",
+    "revision": 1794769241333,
+    "observedAtMs": 1794769241333,
+    "maxAgeMs": 172800000
+   }
+  ]
+ }
+}

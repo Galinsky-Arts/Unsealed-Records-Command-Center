@@ -7,10 +7,11 @@ export function projectSceneSignalAggregate(x,{requestedLabelId,minimumGroupSize
  if(typeof requestedLabelId!=='string'||!id.test(requestedLabelId)||
   !Number.isSafeInteger(minimumGroupSize)||minimumGroupSize<2||
   !x||typeof x!=='object'||Array.isArray(x)||x.labelId!==requestedLabelId||
-  !id.test(x.sessionId||'')||!id.test(x.eventId||'')||
+  !id.test(x.sessionId||'')||(x.eventId!==null&&!id.test(x.eventId||''))||
   typeof x.startedAt!=='string'||!Number.isFinite(Date.parse(x.startedAt))||
-  !Object.hasOwn(order,x.status)||x.participantIds!==undefined||x.exactLocation!==undefined||
-  ![x.attendance,x.engagements,x.commerceTransactions,x.commerceMinor].every(v=>typeof v==='string'&&count.test(v)&&v.length<=100)||
+  (x.status!==null&&!Object.hasOwn(order,x.status))||x.participantIds!==undefined||x.exactLocation!==undefined||
+  ![x.attendance,x.engagements,x.commerceTransactions].every(v=>typeof v==='string'&&count.test(v)&&v.length<=100)||
+  (x.commerceMinor!==null&&!(typeof x.commerceMinor==='string'&&count.test(x.commerceMinor)&&x.commerceMinor.length<=100))||
   !/^[A-Z]{3}$/.test(x.currency||'')||!x.source||x.source.system!=='SceneSignal'||
   !['live','synthetic'].includes(x.source.kind)||!Number.isSafeInteger(x.source.revision)||x.source.revision<0||
   !Number.isSafeInteger(x.source.observedAtMs)||x.source.observedAtMs<0||
@@ -34,7 +35,7 @@ export function createSceneSignalRevisionGuard(){
   if(previous){
    if(record.source.revision<previous.source.revision) return 'stale';
    if(record.source.revision===previous.source.revision) return JSON.stringify(record)===JSON.stringify(previous)?'duplicate':'conflict';
-   if(order[record.status]<order[previous.status]) return 'state_regression';
+   if(record.status!==null&&previous.status!==null&&order[record.status]<order[previous.status]) return 'state_regression';
   }
   latest.set(key,record);return 'accepted';
  }});
