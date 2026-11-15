@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createTrackZeroClient} from './trackzero-client.mjs';
+import {createTrackZeroClient} from '../src/trackzero-client.mjs';
 const event=(label,revision=1)=>({labelId:label,creatorId:'creator_01',artistId:'artist_001',occurrenceId:'occurrence_01',eventId:'event_0001',action:'earned',pointsMicro:'100',verified:true,evidenceVerified:true,eligiblePlayback:true,finalAnnouncementCompleted:true,source:{system:'TrackZero',kind:'live',revision,observedAtMs:1000}});
 const json=(label,revision)=>new Response(JSON.stringify({labelId:label,creatorId:'creator_01',events:[event(label,revision)]}),{headers:{'content-type':'application/json'}});
 test('same-origin contributor request passes no provider token or creator selector',async()=>{

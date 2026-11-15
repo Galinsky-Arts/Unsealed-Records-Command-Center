@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectTrackZeroEvent,summarizeTrackZeroEvents,projectContribution} from './trackzero.mjs';
+import {projectTrackZeroEvent,summarizeTrackZeroEvents,projectContribution} from '../src/speaker-contributions.mjs';
 const base={labelId:'label_0001',creatorId:'creator_01',artistId:'artist_001',occurrenceId:'occurrence_01',eventId:'event_0001',action:'earned',pointsMicro:'9007199254740993',verified:true,evidenceVerified:true,eligiblePlayback:true,finalAnnouncementCompleted:true,source:{system:'TrackZero',kind:'live',revision:1,observedAtMs:1000}};
 const options={requestedLabelId:'label_0001',requestedCreatorId:'creator_01',nowMs:2000};
 test('points remain exact and separated by artist',()=>{
