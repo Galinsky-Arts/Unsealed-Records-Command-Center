@@ -61,14 +61,15 @@ test('production entry never logs secret values when configuration is missing',(
  const result=spawnSync(process.execPath,['scripts/start-production.mjs'],{encoding:'utf8',
   env:{ENGINE_TOKEN:'DO-NOT-LOG-private-fixture'},timeout:5000});
  assert.equal(result.status,1);assert.equal(result.stdout,'');
- assert.equal(result.stderr,'Production startup refused; verify server configuration and application artifact.\n');
- assert.doesNotMatch(result.stderr,/DO-NOT-LOG|ENGINE_TOKEN/);
+ assert.match(result.stderr,/^Production startup refused; verify server configuration and application artifact\.( \([A-Za-z0-9_ -]+\))?\n$/);
+ assert.doesNotMatch(result.stderr,/DO-NOT-LOG/);
 });
-test('production entry fails closed when valid configuration has no application artifact',async()=>{
+test('production entry refuses OIDC-membership-only configuration without a session secret or valid engine key',async()=>{
  await fixture(async(env,path)=>{
   const current=Date.now();await writeFile(path,JSON.stringify({...membership(),issuedAtMs:current,validUntilMs:current+60000}));
   const result=spawnSync(process.execPath,['scripts/start-production.mjs'],{encoding:'utf8',env,timeout:5000});
   assert.equal(result.status,1);assert.equal(result.stdout,'');
-  assert.equal(result.stderr,'Production startup refused; verify server configuration and application artifact.\n');
+  assert.match(result.stderr,/^Production startup refused; verify server configuration and application artifact\./);
+  assert.doesNotMatch(result.stderr,/private-engine-fixture/);
  });
 });

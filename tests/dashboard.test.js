@@ -22,6 +22,7 @@ test('Built dashboard switches label/family scopes, ignores an older report and 
   let pendingAlpha,failNext=false;
   const requested=[];
   window.fetch=async path=>{
+    if(path==='/api/session')return response({authenticated:true,subject:'local:admin',method:'local',labels:'all',methods:{password:true,oidc:false}});
     requested.push(path);
     if(path.includes('/scopes'))return response(menu);
     if(failNext){failNext=false;throw new Error('temporary outage');}
@@ -49,4 +50,30 @@ test('Built dashboard switches label/family scopes, ignores an older report and 
   assert.equal(document.body.textContent.includes('Illustrative data only'),false);assert.equal(document.body.textContent.includes('Beta Release'),true);
   select.value='family:family';select.dispatchEvent(new window.Event('change',{bubbles:true}));
   await until(()=>document.body.textContent.includes('Live engine data')&&requested.some(p=>p.endsWith('?familyId=family')));
+});
+
+test('Built dashboard requires sign-in before requesting any engine data and posts credentials same-origin',async t=>{
+  const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});t.after(()=>dom.window.close());
+  const window=dom.window,document=window.document;
+  const requested=[];let signedIn=false;
+  window.fetch=async(path,options={})=>{
+    requested.push([path,options.method||'GET',options.body]);
+    if(path==='/api/session')return signedIn?{ok:true,status:200,json:async()=>({authenticated:true,labels:'all'})}:{ok:false,status:401,json:async()=>({authenticated:false,methods:{password:true,oidc:false}})};
+    if(path==='/auth/login'){const body=JSON.parse(options.body);if(body.password==='right-password-value'){signedIn=true;return {ok:true,status:200,json:async()=>({})};}return {ok:false,status:401,json:async()=>({})};}
+    return {ok:true,status:200,json:async()=>({synthetic:false,counts:{sales:7,streams:0,plays:0,events:0,attendees:0},scope:{labelIds:['alpha']},byRelease:{},bySource:{},daily:[]})};
+  };
+  const files=await readdir('dist/assets');const bundle=await readFile('dist/assets/'+files.find(f=>f.endsWith('.js')),'utf8');window.eval(bundle);
+  await until(()=>document.querySelector('#login-password'));
+  assert.equal(requested.some(([p])=>p.startsWith('/api/v1')),false);
+  const setValue=(el,value)=>{const setter=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;setter.call(el,value);el.dispatchEvent(new window.Event('input',{bubbles:true}));};
+  setValue(document.querySelector('#login-password'),'wrong-password-value');
+  document.querySelector('form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await until(()=>document.body.textContent.includes('Invalid username or password'));
+  setValue(document.querySelector('#login-password'),'right-password-value');
+  document.querySelector('form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await until(()=>document.querySelector('#label-scope'));
+  const login=requested.find(([p])=>p==='/auth/login');assert.equal(login[1],'POST');
+  await until(()=>requested.some(([p])=>p.startsWith('/api/v1/summary')));
+  await until(()=>document.body.textContent.includes('Live engine data'));
+  assert.ok(document.querySelector('.signout'));
 });

@@ -1,8 +1,10 @@
 **
+!package.json
+!package-lock.json
+!index.html
+!vite.config.js
 !src/
-!src/bff/
-!src/bff/*.mjs
-!Dockerfile
+!src/**
 !scripts/
 !scripts/production-config.mjs
 !scripts/start-production.mjs
