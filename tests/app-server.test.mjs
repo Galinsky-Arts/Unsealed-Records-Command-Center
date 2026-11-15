@@ -165,3 +165,20 @@ test('optional OIDC login issues a label-restricted session from a verified ID t
   return new Response(JSON.stringify({counts:{},labels:[{id:'alpha'},{id:'beta'}],families:[{id:'f',labelIds:['alpha','beta']}]}),{headers:{'content-type':'application/json'}});
  }});
 });
+
+test('reporting routes, alert thresholds and CSV exports pass through the authenticated proxy',async()=>{
+ const seen=[];
+ await withApp(async({base})=>{
+  const cookie=sessionCookie(await login(base,{username:'admin',password:PASSWORD}));
+  for(const path of ['/api/v1/alerts?labelId=alpha&staleHours=24','/api/v1/rollups/daily?labelId=alpha&cursor=abc','/api/v1/facts?limit=5','/api/v1/catalog/isrc/USAAA2600001','/api/v1/catalog/unmapped-isrcs'])
+   assert.equal((await fetch(base+path,{headers:{cookie}})).status,200,path);
+  const csv=await fetch(base+'/api/v1/exports/facts.csv?labelId=alpha',{headers:{cookie}});
+  assert.equal(csv.status,200);assert.match(csv.headers.get('content-type'),/text\/csv/);assert.match(csv.headers.get('content-disposition'),/attachment/);
+  assert.equal(await csv.text(),'a,b\r\n1,2\r\n');
+  assert.equal((await fetch(base+'/api/v1/exports/facts.csv')).status,401);
+  assert.equal((await fetch(base+'/api/v1/exports/other.csv',{headers:{cookie}})).status,404);
+  assert.ok(seen.some(u=>u==='https://engine.example/v1/alerts?labelId=alpha&staleHours=24'));
+ },{fetchImpl:async(url,options)=>{seen.push(String(url));
+  if(String(url).endsWith('.csv?labelId=alpha')){assert.equal(options.headers.accept,'text/csv');return new Response('a,b\r\n1,2\r\n',{headers:{'content-type':'text/csv; charset=utf-8'}});}
+  return new Response(JSON.stringify({alerts:[]}),{headers:{'content-type':'application/json'}});}});
+});

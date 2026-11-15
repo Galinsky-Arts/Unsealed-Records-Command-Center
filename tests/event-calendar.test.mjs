@@ -19,7 +19,12 @@ test('QR campaign tokens are signed, scoped and expire without personal data',()
  const token=new URL(url).pathname.slice(3);const claims=issuer.verify(token);
  assert.deepEqual(claims,{labelId:'label_0001',eventId:'event_0001',campaignId:'campaign_1'});
  assert.doesNotMatch(url,/attendee|email|location/);
- assert.equal(issuer.verify(token.replace(/.$/,'A')),null);
+ const [body,sig]=token.split('.');
+ const flip=c=>c==='A'?'B':'A';
+ assert.equal(issuer.verify(body+'.'+flip(sig[0])+sig.slice(1)),null);
+ // Non-canonical trailing bits decode to the same bytes; they must still be rejected.
+ const last=sig.at(-1),alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',i=alphabet.indexOf(last);
+ assert.equal(issuer.verify(body+'.'+sig.slice(0,-1)+alphabet[i^1]),null);
  time=5000;assert.equal(issuer.verify(token),null);
 });
 test('legacy public event projection remains compatible',()=>{
