@@ -77,3 +77,22 @@ test('Built dashboard requires sign-in before requesting any engine data and pos
   await until(()=>document.body.textContent.includes('Live engine data'));
   assert.ok(document.querySelector('.signout'));
 });
+
+test('Sources tab shows engine-evaluated alerts and scoped CSV export links',async t=>{
+  const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});t.after(()=>dom.window.close());
+  const window=dom.window,document=window.document;
+  const ok=data=>({ok:true,status:200,json:async()=>data});
+  window.fetch=async path=>{
+    if(path==='/api/session')return ok({authenticated:true,labels:'all'});
+    if(path.startsWith('/api/v1/scopes'))return ok({labels:[{id:'alpha',name:'Alpha'}],families:[]});
+    if(path.startsWith('/api/v1/alerts'))return ok({alerts:[{type:'source_stale',severity:'critical',labelId:'alpha',source:'dsp',message:'No dsp data ingested for 200 hours'}]});
+    return ok({synthetic:false,counts:{sales:0,streams:0,plays:0,events:0,attendees:0},scope:{labelIds:['alpha']},byRelease:{},bySource:{dsp:{facts:3}},daily:[]});
+  };
+  const files=await readdir('dist/assets');const bundle=await readFile('dist/assets/'+files.find(f=>f.endsWith('.js')),'utf8');window.eval(bundle);
+  await until(()=>document.querySelector('.sidebar nav button'));
+  [...document.querySelectorAll('.sidebar nav button')].find(b=>b.textContent==='Sources').click();
+  await until(()=>document.body.textContent.includes('No dsp data ingested for 200 hours'));
+  assert.ok(document.body.textContent.includes('Critical'));
+  const links=[...document.querySelectorAll('.export-links a')].map(a=>a.getAttribute('href'));
+  assert.deepEqual(links,['/api/v1/exports/facts.csv','/api/v1/exports/daily.csv']);
+});

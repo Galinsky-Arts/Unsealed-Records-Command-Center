@@ -13,9 +13,12 @@ import {constantTimeEqualString,cookieHeader,createLoginLimiter,createPasswordVe
 const ENGINE_ROUTES=[
  /^\/v1\/summary$/,/^\/v1\/scopes$/,/^\/v1\/sources$/,/^\/v1\/catalog$/,/^\/v1\/source-health$/,
  /^\/v1\/platforms$/,/^\/v1\/platforms\/(trackzero|scenesignal)\/summary$/,
- /^\/v1\/distributor\/rows$/,/^\/v1\/distributor\/reconciliations$/,/^\/v1\/attendance$/
+ /^\/v1\/distributor\/rows$/,/^\/v1\/distributor\/reconciliations$/,/^\/v1\/attendance$/,
+ /^\/v1\/facts$/,/^\/v1\/rollups\/daily$/,/^\/v1\/alerts$/,/^\/v1\/catalog\/unmapped-isrcs$/,/^\/v1\/catalog\/isrc\/[A-Za-z0-9-]{12,20}$/,
+ /^\/v1\/exports\/(facts|daily)\.csv$/
 ];
-const QUERY_KEYS=new Set(['labelId','labelIds','familyId','source','from','to','limit','cursor','eventId','sessionId','kind']);
+const QUERY_KEYS=new Set(['labelId','labelIds','familyId','source','from','to','limit','cursor','eventId','sessionId','kind','staleHours','backlogMinutes','minBaseline']);
+const CSV_LIMIT=100*1024*1024;
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
  '.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.json':'application/json','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
 const CSP="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
@@ -104,9 +107,20 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
   const target=new URL(enginePath+url.search,config.engineOrigin);
   if(target.origin!==config.engineOrigin) return send(res,404,failure);
   try{
-   const signal=AbortSignal.timeout(15000);
-   const response=await fetchImpl(target,{method:'GET',redirect:'error',signal,headers:{authorization:'Bearer '+config.engineToken,accept:'application/json'}});
+   const signal=AbortSignal.timeout(/\.csv$/.test(enginePath)?120000:15000);
+   const response=await fetchImpl(target,{method:'GET',redirect:'error',signal,headers:{authorization:'Bearer '+config.engineToken,accept:/\.csv$/.test(enginePath)?'text/csv':'application/json'}});
    if(!response.ok){await response.body?.cancel();return send(res,response.status===400||response.status===404?response.status:502,failure,{'x-data-provenance':'unavailable'});}
+   if(/\.csv$/.test(enginePath)){
+    // Stream CSV exports with a byte cap; content is engine-generated and formula-neutralized upstream.
+    if(!/^text\/csv(?:\s*;|$)/i.test(response.headers.get('content-type')||'')||!response.body){await response.body?.cancel();return send(res,502,failure);}
+    res.writeHead(200,{'content-type':'text/csv; charset=utf-8','cache-control':'no-store','x-data-provenance':'live',
+     'content-disposition':'attachment; filename="'+(enginePath.endsWith('daily.csv')?'daily-rollups':'facts')+'.csv"'});
+    let size=0;const reader=response.body.getReader();
+    for(;;){const {done,value}=await reader.read();if(done) break;size+=value.byteLength;
+     if(size>CSV_LIMIT){await reader.cancel();res.destroy();return;}
+     if(!res.write(value)) await new Promise(r=>res.once('drain',r));}
+    return res.end();
+   }
    let data=await readJson(response,{maxBytes:5_000_000,signal});
    if(session.labels!=='*'&&enginePath==='/v1/scopes'&&data&&typeof data==='object'){
     const allowed=new Set(session.labels);
@@ -114,7 +128,7 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
      families:(data.families||[]).filter(f=>Array.isArray(f.labelIds)&&f.labelIds.every(id=>allowed.has(id)))};
    }
    return send(res,200,data,{'x-data-provenance':data?.synthetic?'synthetic':'live'});
-  }catch{return send(res,502,failure,{'x-data-provenance':'unavailable'});}
+  }catch{if(res.headersSent) return res.destroy();return send(res,502,failure,{'x-data-provenance':'unavailable'});}
  }
 
  async function serveStatic(req,res,url){

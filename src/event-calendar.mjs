@@ -51,6 +51,8 @@ export function createQrIssuer({secret,origin,now=()=>Date.now()}){
    const parts=token.split('.');if(parts.length!==2||!parts.every(x=>/^[A-Za-z0-9_-]+$/.test(x))) return null;
    try{
     const signature=Buffer.from(parts[1],'base64url'),expected=mac(parts[0]);
+    // Require canonical base64url so trailing-bit variants of a signature are not accepted as distinct tokens.
+    if(signature.toString('base64url')!==parts[1]||Buffer.from(parts[0],'base64url').toString('base64url')!==parts[0]) return null;
     if(signature.length!==expected.length||!timingSafeEqual(signature,expected)) return null;
     const data=JSON.parse(Buffer.from(parts[0],'base64url').toString('utf8'));
     if(![data.labelId,data.eventId,data.campaignId].every(x=>typeof x==='string'&&id.test(x))||
