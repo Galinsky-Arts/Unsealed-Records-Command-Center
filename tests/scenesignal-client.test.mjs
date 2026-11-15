@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createSceneSignalClient} from './scenesignal-client.mjs';
+import {createSceneSignalClient} from '../src/scenesignal-client.mjs';
 const session=(label,revision=1)=>({labelId:label,sessionId:'session_0001',eventId:'event_0001',startedAt:'2026-10-18T20:00:00Z',status:'running',attendance:'5',engagements:'3',commerceTransactions:'1',commerceMinor:'100',currency:'USD',source:{system:'SceneSignal',kind:'live',revision,observedAtMs:1000}});
 const json=(label,revision)=>new Response(JSON.stringify({labelId:label,sessions:[session(label,revision)]}),{headers:{'content-type':'application/json'}});
 test('same-origin session client suppresses small groups',async()=>{

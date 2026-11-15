@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectSceneSignalAggregate,createSceneSignalRevisionGuard,projectSceneSignalSession} from './scenesignal.mjs';
+import {projectSceneSignalAggregate,createSceneSignalRevisionGuard,projectSceneSignalSession} from '../src/scenesignal-session.mjs';
 const base={labelId:'label_0001',sessionId:'session_0001',eventId:'event_0001',startedAt:'2026-10-18T20:00:00Z',status:'running',attendance:'100',engagements:'20',commerceTransactions:'12',commerceMinor:'9007199254740993',currency:'USD',source:{system:'SceneSignal',kind:'live',revision:1,observedAtMs:1000}};
 const options={requestedLabelId:'label_0001',minimumGroupSize:10,nowMs:2000};
 test('shows only thresholded aggregates with exact commerce values',()=>{
