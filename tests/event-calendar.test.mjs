@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectCalendarEvent,listCalendarEvents,createQrIssuer,projectPublicEvent} from './event.mjs';
+import {projectCalendarEvent,listCalendarEvents,createQrIssuer,projectPublicEvent} from '../src/event-calendar.mjs';
 const base={labelId:'label_0001',ownerVerified:true,publishApproved:true,eventId:'event_0001',title:'Street launch',startsAt:'2026-10-19T10:00:00Z',endsAt:'2026-10-19T12:00:00Z',status:'scheduled',publicUrl:'https://events.example/e/1',source:{revision:1,observedAtMs:1000}};
 const options={requestedLabelId:'label_0001',allowedHosts:['events.example'],nowMs:2000};
 test('calendar keeps only approved public fields and newest event revision',()=>{

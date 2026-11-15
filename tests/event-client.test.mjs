@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createEventClient} from './event-client.mjs';
+import {createEventClient} from '../src/event-client.mjs';
 const event=(label,revision=1)=>({labelId:label,ownerVerified:true,publishApproved:true,eventId:'event_0001',title:'Street launch',startsAt:'2026-10-19T10:00:00Z',endsAt:'2026-10-19T12:00:00Z',status:'scheduled',publicUrl:'https://events.example/e/1',source:{revision,observedAtMs:1000}});
 const json=(label,revision)=>new Response(JSON.stringify({labelId:label,events:[event(label,revision)]}),{headers:{'content-type':'application/json'}});
 test('same-origin calendar reader has no provider credential',async()=>{
