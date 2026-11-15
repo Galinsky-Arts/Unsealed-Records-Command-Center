@@ -1,7 +1,7 @@
 version: 2.1
 
-# Existing E2EESA record integrity only. This is NOT full product CI,
-# penetration testing, or security certification.
+# E2EESA record integrity plus product build/tests. This is NOT penetration
+# testing or security certification.
 jobs:
   existing-status-integrity:
     docker:
@@ -12,7 +12,17 @@ jobs:
       - run:
           name: Validate E2EESA scoped status and evidence
           command: python3 scripts/validate_e2eesa_status.py
+  product-build-and-tests:
+    docker:
+      - image: cimg/node:22.20.0
+    resource_class: small
+    steps:
+      - checkout
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
 workflows:
   current-status-only:
     jobs:
       - existing-status-integrity
+      - product-build-and-tests
