@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createSourceHealthClient} from './health-client.mjs';
+import {createSourceHealthClient} from '../src/health-client.mjs';
 const observation=label=>({labelId:label,sourceId:'streaming',metricId:'streams',accessVerified:true,kind:'live',valueDecimal:'100',revision:1,observedAtMs:1000,maxAgeMs:10000});
 const json=label=>new Response(JSON.stringify({labelId:label,observations:[observation(label)]}),{headers:{'content-type':'application/json'}});
 test('same-origin source health never passes provider credentials',async()=>{

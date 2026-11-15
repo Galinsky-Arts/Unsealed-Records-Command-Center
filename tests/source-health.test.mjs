@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectSourceObservation,createAlertEvaluator,assessSourceHealth,evaluateGoal} from './health.mjs';
+import {projectSourceObservation,createAlertEvaluator,assessSourceHealth,evaluateGoal} from '../src/source-health.mjs';
 const base={labelId:'label_0001',sourceId:'streaming',metricId:'streams',accessVerified:true,kind:'live',valueDecimal:'100',revision:1,observedAtMs:1000,maxAgeMs:10000};
 const args={requestedLabelId:'label_0001',baselineDecimal:'100',nowMs:2000};
 test('two exact declines trigger alert and two recoveries clear it',()=>{
