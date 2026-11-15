@@ -27,4 +27,19 @@ return <div className="app"><aside className="sidebar"><div className="brand"><d
 {tab==="Sources"&&<section className="panel full"><div className="panel-header"><div><div className="overline">DATA PROVENANCE</div><h3>Sources in current dataset</h3></div></div><div className="source-list">{Object.entries(data.bySource||{}).map(([name,s])=><div className="source-item" key={name}><div><span className="source-icon"><Wifi size={18}/></span><b>{name}</b></div><span>{fmt(s.facts)} records</span></div>)}</div><p className="muted">Refresh and access metadata will be provided by the engine sources API once integrations are configured.</p></section>}
 {tab==="Settings"&&<div className="panel empty"><Settings2 size={28}/><h3>Connection configuration</h3><p>Engine access is configured by your administrator. Only authorized labels appear in your menu.</p></div>}
 <footer><span>UNSEALED RECORDS · OPERATIONS INTELLIGENCE</span><span>{connected?"ENGINE CONNECTED":live?"CACHED ENGINE DATA":data.loading?"LOADING":"DEMONSTRATION"} · UPDATED {last?last.toLocaleTimeString():"—"}</span></footer></main></div>}
-createRoot(document.getElementById("root")).render(<App/>);
+function Login({methods,onDone}){const[username,setUsername]=useState("admin"),[password,setPassword]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
+const submit=async e=>{e.preventDefault();setBusy(true);setMessage("");try{const r=await fetch("/auth/login",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify({username,password})});
+if(r.ok){setPassword("");onDone();return}setMessage(r.status===429?"Too many attempts. Wait a few minutes and try again.":r.status===401?"Invalid username or password.":"Sign-in is unavailable.")}catch{setMessage("Sign-in is unavailable.")}finally{setBusy(false)}};
+return <div className="login-page"><form className="login-card panel" onSubmit={submit} aria-labelledby="login-title"><div className="brand"><div className="brand-mark">U<span>✦</span></div><div><strong>UNSEALED</strong><small>RECORDS / CONTROL</small></div></div><h1 id="login-title">Sign in</h1><p className="muted">Operational metrics are private. Sign in to view label data.</p>
+{methods?.password!==false&&<><label htmlFor="login-username">Username</label><input id="login-username" autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} required/><label htmlFor="login-password">Password</label><input id="login-password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/><button className="refresh login-submit" type="submit" disabled={busy}>{busy?"Signing in…":"Sign in"}</button></>}
+{methods?.oidc&&<a className="refresh login-submit" href="/auth/oidc/login">Sign in with your organization</a>}
+{message&&<p className="notice" role="alert">{message}</p>}</form></div>}
+function Gate(){const[state,setState]=useState({status:"checking"});
+const check=async()=>{try{const r=await fetch("/api/session",{credentials:"same-origin",cache:"no-store"});const body=await r.json().catch(()=>({}));
+if(r.ok&&body.authenticated===true)setState({status:"in",session:body});else if(r.status===401)setState({status:"out",methods:body.methods});else setState({status:"dev"})}catch{setState({status:"dev"})}};
+useEffect(()=>{check()},[]);
+const logout=async()=>{await fetch("/auth/logout",{method:"POST",credentials:"same-origin"}).catch(()=>{});setState({status:"out",methods:state.methods})};
+if(state.status==="checking")return <div className="login-page"><p className="muted">Checking session…</p></div>;
+if(state.status==="out")return <Login methods={state.methods} onDone={check}/>;
+return <>{state.status==="in"&&<button className="signout" onClick={logout}>Sign out</button>}<App/></>}
+createRoot(document.getElementById("root")).render(<Gate/>);

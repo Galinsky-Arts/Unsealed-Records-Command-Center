@@ -6,6 +6,8 @@ A **separate** Unsealed Records frontend built atop the provider-agnostic [Music
 
 Start with Node 22+: `npm install && npm run dev`, then visit http://localhost:5173. `npm run build` produces `dist`. Without a reachable engine, the interface displays **clearly marked synthetic figures** so the UI can be reviewed safely. It never calls invented metrics real.
 
+**Production:** `npm ci && npm run build && npm start` runs the authenticated server in `src/server/app.mjs` (see `.env.example` and [docs/URC-02_BFF_BOUNDARY.md](docs/URC-02_BFF_BOUNDARY.md)). It serves the dashboard behind a login (local administrator fallback via `ADMIN_PASSWORD`, optional OIDC), and proxies allowlisted read-only Engine routes with the Engine key held server-side.
+
 `/api` is proxied server-side during Vite development via `ENGINE_INTERNAL_URL`, with the API token injected only by the development server. **Do not deploy the static site against a public engine without a production backend-for-frontend and authentication** (PR 2). For production, use an authenticated server-rendered/BFF gateway; never bundle the ENGINE_API_KEY into client JavaScript or publish operational metrics anonymously.
 
 `docs/roadmap.md` contains the planned implementation sequence.
