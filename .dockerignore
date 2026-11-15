@@ -1,0 +1,10 @@
+**
+!package.json
+!package-lock.json
+!index.html
+!vite.config.js
+!src/
+!src/**
+!scripts/
+!scripts/production-config.mjs
+!scripts/start-production.mjs
