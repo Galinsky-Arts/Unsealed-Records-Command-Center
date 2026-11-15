@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {projectArtistPortfolio,summarizeArtistPortfolio,projectArtistRoyalty} from './artist.mjs';
+import {projectArtistPortfolio,summarizeArtistPortfolio,projectArtistRoyalty} from '../src/artist-royalties.mjs';
 const statement={statementId:'statement_001',labelId:'label_0001',releaseId:'release_001',period:'2026-10',currency:'USD',distributableMinor:'9007199254740994',allocations:[{artistId:'artist_001',splitBasisPoints:5000,amountMinor:'4503599627370497'},{artistId:'artist_002',splitBasisPoints:5000,amountMinor:'4503599627370497'}],source:{kind:'live',revision:1,observedAtMs:1000}};
 const options={requestedArtistId:'artist_001',authorizedLabelIds:['label_0001'],nowMs:2000};
 test('reconciles exact splits and only reveals requested artist',()=>{

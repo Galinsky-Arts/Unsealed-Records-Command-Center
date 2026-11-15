@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {createArtistClient} from './artist-client.mjs';
+import {createArtistClient} from '../src/artist-client.mjs';
 const projected=(label,revision=1)=>({artistId:'artist_001',statements:[{statementId:'statement_001',labelId:label,releaseId:'release_001',period:'2026-10',currency:'USD',amountMinor:'100',splitBasisPoints:5000,source:{kind:'live',revision,observedAtMs:1000}}]});
 const json=(label,revision)=>new Response(JSON.stringify(projected(label,revision)),{headers:{'content-type':'application/json'}});
 test('same-origin artist view contains only current artist projection',async()=>{
