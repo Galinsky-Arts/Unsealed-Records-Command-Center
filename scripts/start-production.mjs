@@ -10,5 +10,12 @@ try{
 }
 const server=createAppServer(config);
 server.listen(config.port,'0.0.0.0',()=>process.stdout.write('Command Center listening on '+config.port+(config.oidc?' (OIDC enabled)':'')+(config.adminPassword?' (local admin login enabled)':'')+'\n'));
+// Startup connectivity evidence: status codes only, never bodies, URLs with credentials or keys.
+(async()=>{
+ const probe=async(path,auth)=>{try{const r=await fetch(new URL(path,config.engineOrigin),{redirect:'error',signal:AbortSignal.timeout(60000),
+  headers:auth?{authorization:'Bearer '+config.engineToken,accept:'application/json'}:{accept:'application/json'}});await r.body?.cancel();return r.status;}catch{return 'unreachable';}};
+ const health=await probe('/health',false),read=await probe('/v1/scopes',true);
+ process.stdout.write('Engine probe: health='+health+' authorized-read='+read+'\n');
+})();
 const stop=()=>server.close(()=>process.exit(0));
 process.once('SIGTERM',stop);process.once('SIGINT',stop);
