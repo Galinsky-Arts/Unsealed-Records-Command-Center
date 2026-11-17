@@ -51,3 +51,11 @@ The Command Center runs as a Render free-plan Node web service: build `npm ci &&
 - Runtime variables (values only in Render): `ENGINE_URL`, `ENGINE_API_KEY` (read-only), `ADMIN_USERNAME`, `ADMIN_PASSWORD` (generated), `SESSION_SECRET` (generated), `APP_ORIGIN`, `TRUST_PROXY`, `NODE_VERSION`.
 - OIDC is not configured: it needs an owner-provisioned issuer (`BFF_ISSUER`, `BFF_AUDIENCE`, `BFF_JWKS_JSON`, `OIDC_AUTHORIZATION_ENDPOINT`, `OIDC_TOKEN_ENDPOINT`, `OIDC_CLIENT_ID`, `OIDC_REDIRECT_URI`). Until then the single local administrator login is the only sign-in.
 - Not yet verified: interactive browser login on the live URL from an external network, accessibility/mobile acceptance, and live producer data. Independent human security review remains pending.
+
+### Deployment record (2026-11-17)
+
+- PR #27 (merge `f64009b`) and the probe update `8b8c12a` deployed to `srv-dbsvlbdg1s2s738biqng`; Render reports the deploy live. Startup log: `Engine probe: health=200 authorized-read=200 console-write=200` (status codes only).
+- New runtime variables (generated, values only in Render): `ENGINE_WRITE_API_KEY` (equals the engine's `ENGINE_CONSOLE_KEY`; enables writes, user management, imports and demo data) and `QR_SIGNING_SECRET` (signed QR campaign links).
+- Every screen is wired (see `docs/CONSOLE.md`). Additional users are created on the Admin screen; the local administrator remains the bootstrap login. OIDC stays off until an issuer is provisioned.
+- No synthetic demo data has been loaded in production; the Admin screen's "Load demo data" button seeds the clearly labelled synthetic label and "Remove demo data" deletes it.
+- Not yet verified: interactive browser sessions on the live URL from an external network (the sandbox cannot reach onrender.com), physical-device mobile QA, live provider/producer data, independent human security review.
