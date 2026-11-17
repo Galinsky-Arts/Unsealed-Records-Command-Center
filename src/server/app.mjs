@@ -4,6 +4,7 @@ import {extname,join,normalize,resolve,sep} from 'node:path';
 import {readJson} from '../bff/response.mjs';
 import {verifyIdentity} from '../bff/identity.mjs';
 import {cookieValue,oidcLogin,unseal,validOidcConfig} from '../bff/oidc.mjs';
+import {createConsoleRoutes,ROLE_PERMISSIONS} from './console-routes.mjs';
 import {constantTimeEqualString,cookieHeader,createLoginLimiter,createPasswordVerifier,deriveKeys,issueSession,readSession,sessionCookieName} from './session.mjs';
 
 /**
@@ -15,9 +16,11 @@ const ENGINE_ROUTES=[
  /^\/v1\/platforms$/,/^\/v1\/platforms\/(trackzero|scenesignal)\/summary$/,
  /^\/v1\/distributor\/rows$/,/^\/v1\/distributor\/reconciliations$/,/^\/v1\/attendance$/,
  /^\/v1\/facts$/,/^\/v1\/rollups\/daily$/,/^\/v1\/alerts$/,/^\/v1\/catalog\/unmapped-isrcs$/,/^\/v1\/catalog\/isrc\/[A-Za-z0-9-]{12,20}$/,
- /^\/v1\/exports\/(facts|daily)\.csv$/
+ /^\/v1\/exports\/(facts|daily|royalties)\.csv$/,
+ /^\/v1\/royalties\/(rules|preview|statements|balances|payouts)$/,/^\/v1\/budgets$/,/^\/v1\/expenses$/,
+ /^\/v1\/alerts\/feed$/,/^\/v1\/alerts\/delivery$/,/^\/v1\/rollups\/status$/,/^\/v1\/providers$/,/^\/v1\/imports$/,/^\/v1\/connectors$/
 ];
-const QUERY_KEYS=new Set(['labelId','labelIds','familyId','source','from','to','limit','cursor','eventId','sessionId','kind','staleHours','backlogMinutes','minBaseline']);
+const QUERY_KEYS=new Set(['labelId','labelIds','familyId','source','from','to','limit','cursor','eventId','sessionId','kind','staleHours','backlogMinutes','minBaseline','period','payeeId','lines','status','budgetId']);
 const CSV_LIMIT=100*1024*1024;
 const LABEL_REPORT_NAMES=new Set(['catalog','streams','sales','toolost','scenesignal','health','events','stems','artist','trackzero']);
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8',
@@ -60,6 +63,10 @@ export function loadAppConfig(env){
  const adminUser=text('ADMIN_USERNAME',{optional:true})||'admin';
  if(!/^[A-Za-z0-9._@-]{1,64}$/.test(adminUser)) throw new Error('Invalid configuration: ADMIN_USERNAME');
  const adminPassword=text('ADMIN_PASSWORD',{optional:true});
+ const engineWriteToken=text('ENGINE_WRITE_API_KEY',{optional:true});
+ if(engineWriteToken&&engineWriteToken.length<32) throw new Error('Invalid configuration: ENGINE_WRITE_API_KEY');
+ const qrSecret=text('QR_SIGNING_SECRET',{optional:true});
+ if(qrSecret&&qrSecret.length<32) throw new Error('Invalid configuration: QR_SIGNING_SECRET');
  const oidcNames=['BFF_ISSUER','BFF_AUDIENCE','BFF_JWKS_JSON','OIDC_AUTHORIZATION_ENDPOINT','OIDC_TOKEN_ENDPOINT','OIDC_CLIENT_ID','OIDC_REDIRECT_URI'];
  const present=oidcNames.filter(n=>env[n]);
  if(present.length&&present.length!==oidcNames.length) throw new Error('Invalid configuration: incomplete OIDC settings');
@@ -70,14 +77,15 @@ export function loadAppConfig(env){
    tokenEndpoint:env.OIDC_TOKEN_ENDPOINT,clientId:env.OIDC_CLIENT_ID,redirectUri:env.OIDC_REDIRECT_URI};
   if(!validOidcConfig(oidc)) throw new Error('Invalid configuration: OIDC endpoints');
  }
- if(!adminPassword&&!oidc) throw new Error('Invalid configuration: ADMIN_PASSWORD or OIDC settings are required');
+ if(!adminPassword&&!oidc&&!engineWriteToken) throw new Error('Invalid configuration: ADMIN_PASSWORD or OIDC settings are required');
  const port=Number(env.PORT||3000);
  if(!Number.isSafeInteger(port)||port<1||port>65535) throw new Error('Invalid configuration: PORT');
  const sessionHours=Number(env.SESSION_TTL_HOURS||8);
  if(!(sessionHours>0&&sessionHours<=24)) throw new Error('Invalid configuration: SESSION_TTL_HOURS');
  return {engineOrigin:engine.origin,engineToken,appOrigin:appOrigin?.replace(/\/$/,''),adminUser,adminPassword,oidc,
   sessionSecret:sessionSecret(text('SESSION_SECRET')),port,sessionTtlMs:sessionHours*3600000,trustProxy:env.TRUST_PROXY==='1',
-  distDir:resolve(env.DIST_DIR||'dist'),secureCookies:env.INSECURE_COOKIES!=='1'};
+  distDir:resolve(env.DIST_DIR||'dist'),secureCookies:env.INSECURE_COOKIES!=='1',
+  engineWriteToken,qrSecret:qrSecret?Buffer.from(qrSecret,'utf8'):null};
 }
 
 export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limiter=createLoginLimiter({now})}={}){
@@ -94,7 +102,13 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
  const expectedOrigin=req=>config.appOrigin||((config.secureCookies?'https://':'http://')+req.headers.host);
  const sameOrigin=req=>req.headers.origin===expectedOrigin(req)&&req.headers['sec-fetch-site']!=='cross-site';
  const currentSession=req=>readSession(keys,cookieValue(req.headers.cookie,sessionName),now());
+ const consoleRoutes=createConsoleRoutes(config,{fetchImpl,send,now});
 
+ async function authorizedSession(req){
+  const session=currentSession(req);
+  if(!session) return null;
+  return (await consoleRoutes.accountGuard(session).catch(()=>false))?session:null;
+ }
  async function proxy(req,res,url,session){
   const enginePath=url.pathname.slice(4);
   if(!ENGINE_ROUTES.some(r=>r.test(enginePath))) return send(res,404,failure);
@@ -115,7 +129,7 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
     // Stream CSV exports with a byte cap; content is engine-generated and formula-neutralized upstream.
     if(!/^text\/csv(?:\s*;|$)/i.test(response.headers.get('content-type')||'')||!response.body){await response.body?.cancel();return send(res,502,failure);}
     res.writeHead(200,{'content-type':'text/csv; charset=utf-8','cache-control':'no-store','x-data-provenance':'live',
-     'content-disposition':'attachment; filename="'+(enginePath.endsWith('daily.csv')?'daily-rollups':'facts')+'.csv"'});
+     'content-disposition':'attachment; filename="'+(enginePath.endsWith('daily.csv')?'daily-rollups':enginePath.endsWith('royalties.csv')?'royalty-statements':'facts')+'.csv"'});
     let size=0;const reader=response.body.getReader();
     for(;;){const {done,value}=await reader.read();if(done) break;size+=value.byteLength;
      if(size>CSV_LIMIT){await reader.cancel();res.destroy();return;}
@@ -173,25 +187,45 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
    const url=new URL(req.url,'http://localhost');
    if(url.pathname==='/healthz') return send(res,200,{status:'ok'});
    if(req.method==='POST'&&url.pathname==='/auth/login'){
-    if(!verifyPassword) return send(res,404,failure);
+    if(!verifyPassword&&!consoleRoutes.writeConfigured) return send(res,404,failure);
     if(!sameOrigin(req)) return send(res,403,{error:'FORBIDDEN',message:'Cross-origin login refused'});
     const client=clientOf(req);
     let body;try{body=await readBody(req);}catch{return send(res,400,{error:'BAD_REQUEST',message:'Invalid login request'});}
-    const username=typeof body.username==='string'?body.username.slice(0,128):'';
-    const wait=limiter.blocked(client,config.adminUser);
+    const username=typeof body.username==='string'?body.username.trim().slice(0,320):'';
+    const password=typeof body.password==='string'?body.password:'';
+    const account=username.toLowerCase();
+    const wait=limiter.blocked(client,account);
     if(wait) return send(res,429,{error:'RATE_LIMITED',message:'Too many attempts; try again later'},{'retry-after':String(wait)});
-    const passwordOk=verifyPassword(typeof body.password==='string'?body.password:'');
-    if(!passwordOk||!constantTimeEqualString(username,config.adminUser)){
-     limiter.fail(client,config.adminUser);
+    const isLocal=verifyPassword&&constantTimeEqualString(username,config.adminUser);
+    let token=null;
+    if(isLocal){
+     if(verifyPassword(password)) token=issueSession(keys,{subject:'local:'+config.adminUser,method:'local',labels:'*',role:'tenant_admin',nowMs:now(),ttlMs:config.sessionTtlMs});
+    }else if(consoleRoutes.writeConfigured&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)&&password.length>=14&&password.length<=256){
+     const a=await consoleRoutes.verifyAccount(account,password).catch(()=>null);
+     if(a&&ROLE_PERMISSIONS[a.role]) token=issueSession(keys,{subject:'account:'+a.email,method:'account',accountId:a.id,role:a.role,
+      labels:a.role==='tenant_admin'?'*':a.labelIds,nowMs:now(),ttlMs:config.sessionTtlMs});
+    }else if(verifyPassword) verifyPassword(password); // equalize timing for unknown users
+    if(!token){
+     limiter.fail(client,account);
      return send(res,401,{error:'INVALID_CREDENTIALS',message:'Invalid username or password'});
     }
     limiter.succeed(client);
-    const token=issueSession(keys,{subject:'local:'+config.adminUser,method:'local',labels:'*',nowMs:now(),ttlMs:config.sessionTtlMs});
     return send(res,200,{authenticated:true},{'set-cookie':cookieHeader(sessionName,token,config.sessionTtlMs/1000,cookieOpts)});
    }
    if(req.method==='POST'&&url.pathname==='/auth/logout'){
     if(!sameOrigin(req)) return send(res,403,{error:'FORBIDDEN',message:'Cross-origin logout refused'});
     return send(res,200,{authenticated:false},{'set-cookie':cookieHeader(sessionName,'',0,cookieOpts)});
+   }
+   const qrScan=/^\/q\/([A-Za-z0-9_-]{1,1800}\.[A-Za-z0-9_-]{43})$/.exec(url.pathname);
+   if(qrScan&&req.method==='GET') return await consoleRoutes.scan(req,res,qrScan[1],clientOf(req));
+   const writePath=/^\/api\/v1\/(imports|budgets|expenses|royalties\/|attendance$|catalog$|labels$|families$|connectors$|rollups\/refresh|alerts\/)/.test(url.pathname);
+   if(req.method==='POST'&&(writePath||url.pathname.startsWith('/api/admin/')||url.pathname==='/api/qr/issue')){
+    if(!sameOrigin(req)) return send(res,403,{error:'FORBIDDEN',message:'Cross-origin request refused'});
+    const session=await authorizedSession(req);
+    if(!session) return send(res,401,failure);
+    if(url.pathname==='/api/qr/issue') return await consoleRoutes.issueQr(req,res,session);
+    if(url.pathname.startsWith('/api/admin/')) return await consoleRoutes.admin(req,res,url,session);
+    return await consoleRoutes.write(req,res,url,session);
    }
    if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,failure);
    if(url.pathname==='/auth/oidc/login'){
@@ -222,14 +256,20 @@ export function createAppServer(config,{fetchImpl=fetch,now=()=>Date.now(),limit
     }catch{return send(res,401,failure);}
    }
    if(url.pathname==='/api/session'){
-    const session=currentSession(req);
-    const methods={password:Boolean(verifyPassword),oidc:Boolean(config.oidc)};
+    const session=await authorizedSession(req);
+    const methods={password:Boolean(verifyPassword)||consoleRoutes.writeConfigured,oidc:Boolean(config.oidc),accounts:consoleRoutes.writeConfigured};
     if(!session) return send(res,401,{authenticated:false,methods});
-    return send(res,200,{authenticated:true,subject:session.subject,method:session.method,
-     labels:session.labels==='*'?'all':session.labels,expiresAtMs:session.expiresAtMs,methods});
+    return send(res,200,{authenticated:true,subject:session.subject,method:session.method,role:session.role,permissions:consoleRoutes.perms(session),
+     labels:session.labels==='*'?'all':session.labels,expiresAtMs:session.expiresAtMs,methods,
+     features:{write:consoleRoutes.writeConfigured,qr:consoleRoutes.qrConfigured}});
+   }
+   if(url.pathname==='/api/admin/users'&&req.method==='GET'){
+    const session=await authorizedSession(req);
+    if(!session) return send(res,401,failure);
+    return await consoleRoutes.admin(req,res,url,session);
    }
    if(url.pathname.startsWith('/api/')){
-    const session=currentSession(req);
+    const session=await authorizedSession(req);
     if(!session) return send(res,401,failure);
     if(url.pathname.startsWith('/api/v1/')) return await proxy(req,res,url,session);
     const labelReport=/^\/api\/labels\/([A-Za-z0-9_-]{8,128})\/reports\/([a-z]{1,32})$/.exec(url.pathname);

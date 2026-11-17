@@ -27,8 +27,9 @@ export function constantTimeEqualString(a,b){
  return timingSafeEqual(left,right)&&String(a)===String(b);
 }
 
-export function issueSession(keys,{subject,method,labels,nowMs,ttlMs}){
- const payload=b64(JSON.stringify({v:1,sub:subject,m:method,l:labels,iat:nowMs,exp:nowMs+ttlMs,n:b64(randomBytes(9))}));
+export const ROLES=Object.freeze(['tenant_admin','label_manager','team_member','artist']);
+export function issueSession(keys,{subject,method,labels,nowMs,ttlMs,role,accountId}){
+ const payload=b64(JSON.stringify({v:1,sub:subject,m:method,l:labels,iat:nowMs,exp:nowMs+ttlMs,n:b64(randomBytes(9)),...(role?{r:role}:{}),...(accountId?{a:accountId}:{})}));
  return payload+'.'+createHmac('sha256',keys.mac).update(payload).digest('base64url');
 }
 
@@ -40,9 +41,12 @@ export function readSession(keys,value,nowMs){
  if(given.length!==expected.length||!timingSafeEqual(given,expected)) return null;
  try{
   const s=JSON.parse(Buffer.from(payload,'base64url').toString('utf8'));
-  if(s.v!==1||typeof s.sub!=='string'||!['local','oidc'].includes(s.m)||!Number.isSafeInteger(s.exp)||!Number.isSafeInteger(s.iat)||
+  if(s.v!==1||typeof s.sub!=='string'||!['local','oidc','account'].includes(s.m)||(s.r!==undefined&&!ROLES.includes(s.r))||
+   (s.m==='account'&&(typeof s.a!=='string'||!s.r))||!Number.isSafeInteger(s.exp)||!Number.isSafeInteger(s.iat)||
    s.exp<=nowMs||s.iat>nowMs+30000||!(s.l==='*'||(Array.isArray(s.l)&&s.l.every(x=>typeof x==='string')))) return null;
-  return Object.freeze({subject:s.sub,method:s.m,labels:s.l,expiresAtMs:s.exp});
+  // Sessions without an explicit role keep their original meaning: local administrator or read-only OIDC viewer.
+  const role=s.r||(s.m==='local'?'tenant_admin':'team_member');
+  return Object.freeze({subject:s.sub,method:s.m,labels:s.l,expiresAtMs:s.exp,role,accountId:s.a||null});
  }catch{return null;}
 }
 
