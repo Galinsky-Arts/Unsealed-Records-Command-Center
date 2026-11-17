@@ -20,6 +20,10 @@ Reports refresh every 30 seconds while open. Changing labels clears the previous
 
 `npm run build` then `npm test` verifies the built dashboard, scoped query construction, exact counters, canonical release display, selection races, cached-data provenance and absence of server credentials from the client bundle.
 
+## Status (2026-11-17)
+
+All URC screens are wired to the engine: label/family selector, catalog, streaming, sales, royalties and statements, budgets, events with attendance and signed QR campaign links, TrackZero/SceneSignal, alerts, CSV imports through the BFF, and an Admin screen with multiple users and roles plus synthetic demo data. See [docs/CONSOLE.md](docs/CONSOLE.md). Off until configured: write access (`ENGINE_WRITE_API_KEY`), QR links (`QR_SIGNING_SECRET`), OIDC. Pending: real producer telemetry and provider data, mobile device QA on physical hardware, independent human security review.
+
 ## End-to-End Everywhere progress
 
 The canonical [security/e2eesa-status.json](security/e2eesa-status.json) records standard implementation, complete testing and independent expert review separately. Engine Room reads it automatically from GitHub. All initial stages are pending; existing profile locks and approved decisions remain authoritative. Read [adoption and independent-account instructions](docs/E2EESA_ADOPTION.md), and run `python3 scripts/validate_e2eesa_status.py`. Record validation does not establish product security or certification.
